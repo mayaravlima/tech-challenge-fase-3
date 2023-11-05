@@ -1,0 +1,11 @@
+spring:
+  redis:
+    host: redis
+    port: 6379
+    password: root
+  cache:
+    type: redis
+
+  data:
+    mongodb:
+      uri: 'mongodb://root:root@mongo:27017/parquimetro?authSource=admin'
