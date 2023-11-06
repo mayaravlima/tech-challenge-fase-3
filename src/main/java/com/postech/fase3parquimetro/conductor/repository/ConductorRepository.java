@@ -15,9 +15,11 @@ public interface ConductorRepository extends MongoRepository<ConductorEntity, St
 
     ConductorEntity findByPaymentsId(String paymentId);
 
-    @Cacheable(value = "conductor", key = "#id", condition = "#id!=null")
+    @Cacheable(value = "conductor:byEmail", key = "#email", unless = "#result==null")
     Optional<ConductorEntity> findByEmail(String email);
 
-    @Cacheable(value = "conductor", key = "#id", condition = "#id!=null")
+    @Cacheable(value = "conductor:byPhone", key = "#phone", unless = "#result==null")
     Optional<ConductorEntity> findByPhone(String phone);
+
+
 }

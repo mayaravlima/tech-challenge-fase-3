@@ -56,7 +56,7 @@ public class VehicleService {
 
         if (Objects.nonNull(vehicleEntity.getParking())) {
             if (vehicleEntity.getParking().getStatus().equals(StatusEnum.ACTIVE)
-            || vehicleEntity.getParking().getStatus().equals(StatusEnum.NEAR_EXPIRATION)) {
+                    || vehicleEntity.getParking().getStatus().equals(StatusEnum.NEAR_EXPIRATION)) {
                 throw new ParkingException("Vehicle already has an active parking", HttpStatus.BAD_REQUEST.value());
             }
         }
@@ -76,6 +76,7 @@ public class VehicleService {
                 && ParkingType.valueOf(parkingRequest.parkingType().toUpperCase(Locale.ROOT)) == ParkingType.DURATION;
     }
 
+    @Cacheable(cacheNames = "vehicle", unless = "#result.size() == 0")
     public List<VehicleEntity> getAllVehicles() {
         return vehicleRepository.findAll();
     }
@@ -109,8 +110,8 @@ public class VehicleService {
         final var vehicleEntity = vehicleRepository.findById(id)
                 .orElseThrow(() -> new VehicleException("Vehicle not found", HttpStatus.NOT_FOUND.value()));
 
-        if(Objects.isNull(vehicleEntity.getParking())
-        || vehicleEntity.getParking().getStatus().equals(StatusEnum.EXPIRED)) {
+        if (Objects.isNull(vehicleEntity.getParking())
+                || vehicleEntity.getParking().getStatus().equals(StatusEnum.EXPIRED)) {
             throw new ParkingException("Vehicle does not have an active parking", HttpStatus.BAD_REQUEST.value());
         }
 

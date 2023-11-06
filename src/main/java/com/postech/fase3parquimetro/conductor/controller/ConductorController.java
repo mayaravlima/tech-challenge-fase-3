@@ -41,7 +41,7 @@ public class ConductorController {
 
     @PutMapping("/{id}/payment")
     public ResponseEntity<ConductorEntity> addPaymentToConductor(@PathVariable String id, @RequestBody @Valid PaymentCreateOrUpdateRecord payment) {
-        ConductorEntity updatedConductor = conductorService.addCardToConductor(id, payment);
+        ConductorEntity updatedConductor = conductorService.addPaymentToConductor(id, payment);
         return new ResponseEntity<>(updatedConductor, HttpStatus.OK);
     }
 

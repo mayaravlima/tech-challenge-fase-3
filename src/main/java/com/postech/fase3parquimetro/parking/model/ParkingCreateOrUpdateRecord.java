@@ -5,9 +5,8 @@ import jakarta.validation.constraints.NotNull;
 
 public record ParkingCreateOrUpdateRecord(
         int durationInMinutes,
-        @NotNull
+        @NotNull(message = "Parking type can't be empty or null")
         String parkingType,
-
         PaymentEntity payedWith
 ) {
 }

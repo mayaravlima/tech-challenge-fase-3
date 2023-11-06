@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -27,22 +28,22 @@ public class ParkingService {
     private final ParkingRepository parkingRepository;
     private final ReceiptService receiptService;
 
-    @Cacheable(value = "parkings", key = "#id", condition = "#id != null")
+    @Cacheable(value = "parkings", key = "#parkingRequest")
     public ParkingEntity save(ParkingCreateOrUpdateRecord parkingRequest) {
         final var parkingEntity = ParkingEntity.from(parkingRequest);
 
         return parkingRepository.save(parkingEntity);
     }
 
-    public ParkingEntity update(ParkingEntity parking) {
-        return parkingRepository.save(parking);
+    public void update(ParkingEntity parking) {
+        parkingRepository.save(parking);
     }
 
     @Scheduled(fixedRate = FIVE_MINUTES)
     public void checkExpiration() {
         log.info("Checking expiration of parkings");
         final var parkingList =
-                parkingRepository.findExpiredOrNearExpirationStatus()
+                parkingRepository.findActiveOrNearExpirationStatus()
                         .orElse(null);
 
         if (Objects.isNull(parkingList) || parkingList.isEmpty()) {
@@ -55,7 +56,7 @@ public class ParkingService {
     private void controlParkingTime(ParkingEntity parking) {
         final var isAutomaticExtension = parking.isExtendActive();
 
-        if (isAutomaticExtension) {
+        if (parking.getStatus().equals(StatusEnum.NEAR_EXPIRATION) && isAutomaticExtension) {
             log.info("{} has been extended for {}", parking.getId(), parking.getDurationInMinutes());
             parking.extendPeriod();
             parking.setStatus(StatusEnum.ACTIVE);
@@ -94,7 +95,8 @@ public class ParkingService {
         return durationEndingTime.isAfter(LocalDateTime.now()) || durationEndingTime.isEqual(LocalDateTime.now());
     }
 
-    public ParkingEntity getParkingById(String id) {
-        return parkingRepository.findById(id).orElse(null);
+    public List<ParkingEntity> getAllParkings() {
+        return parkingRepository.findAll();
     }
+
 }

@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface ParkingRepository extends MongoRepository<ParkingEntity, String> {
 
-    @Query("{ 'status': { $in: [ 'EXPIRED', 'NEAR_EXPIRATION' ] } }")
-    Optional<List<ParkingEntity>> findExpiredOrNearExpirationStatus();
+    @Query("{ 'status': { $in: [ 'ACTIVE', 'NEAR_EXPIRATION' ] } }")
+    Optional<List<ParkingEntity>> findActiveOrNearExpirationStatus();
 
 }

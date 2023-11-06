@@ -13,6 +13,7 @@ import com.postech.fase3parquimetro.vehicle.model.VehicleEntity;
 import com.postech.fase3parquimetro.vehicle.service.VehicleService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,7 +94,7 @@ public class ConductorService {
         return conductorRepository.save(conductor);
     }
 
-    public ConductorEntity addCardToConductor(String conductorId, PaymentCreateOrUpdateRecord payment) {
+    public ConductorEntity addPaymentToConductor(String conductorId, PaymentCreateOrUpdateRecord payment) {
         final var conductor = getConductorById(conductorId);
 
         paymentService.validateDataOfPayment(payment);
@@ -126,7 +127,7 @@ public class ConductorService {
         return conductorRepository.findById(id).orElseThrow(() -> new ConductorException("Conductor not found", HttpStatus.NOT_FOUND.value()));
     }
 
-
+    @Cacheable(cacheNames = "conductor:allConductors", unless = "#result.size() == 0")
     public List<ConductorEntity> getAllConductors() {
         return conductorRepository.findAll();
     }
