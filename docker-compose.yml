@@ -1,0 +1,49 @@
+# Se não funcionar, tenta dar um colima start e brew install docker-compose
+# Rodando com o comando docker-compose up --force-recreate -d --build
+
+version: '3.1'
+
+services:
+
+  spring-boot-app:
+    restart: always
+    container_name: tech-challenge-fase-3
+    build:
+      context: ./
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+      - mongo
+    networks:
+      - technet
+    links:
+      - redis
+      - mongo
+
+  redis:
+    container_name: redis-cache
+    image: redis:alpine
+    ports:
+      - '6379:6379'
+    networks:
+      - technet
+
+  mongo:
+    image: mongo
+    restart: always
+    container_name: mongodb
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: parquimetro
+    volumes:
+      - './db/mongo:/etc/mongo'
+    networks:
+      - technet
+
+networks:
+  technet:
+    driver: bridge
