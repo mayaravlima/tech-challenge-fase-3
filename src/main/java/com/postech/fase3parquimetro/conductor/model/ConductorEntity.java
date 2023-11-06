@@ -28,7 +28,7 @@ public class ConductorEntity {
     private LocalDateTime createdAt;
 
     @DBRef
-    private List<PaymentEntity>  cardList;
+    private List<PaymentEntity> payments;
     @DBRef
     private List<VehicleEntity> vehicles;
 
@@ -47,6 +47,6 @@ public class ConductorEntity {
     }
 
     public void addCardToList(PaymentEntity paymentEntity) {
-        this.cardList.add(paymentEntity);
+        this.payments.add(paymentEntity);
     }
 }

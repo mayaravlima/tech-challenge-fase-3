@@ -1,7 +1,6 @@
 package com.postech.fase3parquimetro.conductor.model;
 
-import com.postech.fase3parquimetro.payments.model.CardCreateOrUpdateRecord;
-import com.postech.fase3parquimetro.payments.model.PaymentEntity;
+import com.postech.fase3parquimetro.payments.model.PaymentCreateOrUpdateRecord;
 import com.postech.fase3parquimetro.vehicle.model.VehicleCreateRecord;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -19,6 +18,7 @@ public record ConductorCreateOrUpdateRecord(
         String email,
         @NotNull @Pattern(regexp = "[0-9]{11}")
         String phone,
-        List<CardCreateOrUpdateRecord> paymentsList,
+        List<PaymentCreateOrUpdateRecord> paymentsList,
         List<VehicleCreateRecord> vehicles
-) {}
+) {
+}

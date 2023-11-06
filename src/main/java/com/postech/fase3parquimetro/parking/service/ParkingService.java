@@ -1,9 +1,7 @@
 package com.postech.fase3parquimetro.parking.service;
 
-import com.postech.fase3parquimetro.conductor.service.ConductorService;
 import com.postech.fase3parquimetro.parking.model.ParkingCreateOrUpdateRecord;
 import com.postech.fase3parquimetro.parking.model.ParkingEntity;
-import com.postech.fase3parquimetro.parking.model.ParkingType;
 import com.postech.fase3parquimetro.parking.model.StatusEnum;
 import com.postech.fase3parquimetro.parking.repository.ParkingRepository;
 import com.postech.fase3parquimetro.receipt.model.ReceiptEntity;
@@ -36,8 +34,13 @@ public class ParkingService {
         return parkingRepository.save(parkingEntity);
     }
 
+    public ParkingEntity update(ParkingEntity parking) {
+        return parkingRepository.save(parking);
+    }
+
     @Scheduled(fixedRate = FIVE_MINUTES)
     public void checkExpiration() {
+        log.info("Checking expiration of parkings");
         final var parkingList =
                 parkingRepository.findExpiredOrNearExpirationStatus()
                         .orElse(null);
@@ -62,7 +65,6 @@ public class ParkingService {
         if (isNearExpiration(parking)) {
             log.info("{} will expire in 5 minutes", parking.getId());
             parking.setStatus(StatusEnum.NEAR_EXPIRATION);
-            return;
         } else if (parkingHasExpired(parking)) {
             parking.setStatus(StatusEnum.EXPIRED);
 
@@ -71,7 +73,7 @@ public class ParkingService {
                     .parking(parking).build();
 
             final var receipt = receiptService.save(receiptCreation);
-            return;
+            log.info("Receipt created: {}", receipt.getId());
         }
     }
 
@@ -90,5 +92,9 @@ public class ParkingService {
         final var durationEndingTime = parking.getCreatedAt().plusMinutes(duration);
 
         return durationEndingTime.isAfter(LocalDateTime.now()) || durationEndingTime.isEqual(LocalDateTime.now());
+    }
+
+    public ParkingEntity getParkingById(String id) {
+        return parkingRepository.findById(id).orElse(null);
     }
 }

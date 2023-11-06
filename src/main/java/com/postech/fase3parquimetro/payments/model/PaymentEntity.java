@@ -1,16 +1,8 @@
 package com.postech.fase3parquimetro.payments.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.Locale;
-import java.util.Objects;
 
 @Getter
 @Setter
@@ -30,24 +22,24 @@ public class PaymentEntity {
     private PaymentTypeEnum paymentType;
     private boolean isFavorite;
 
-    public static PaymentEntity from(CardCreateOrUpdateRecord paymentEntity) {
-        final var favoriteMethod = paymentEntity.isFavorite();
+    public static PaymentEntity from(PaymentCreateOrUpdateRecord paymentEntity) {
 
         return PaymentEntity.builder()
                 .cardNumber(paymentEntity.cardNumber())
                 .cardHolder(paymentEntity.cardHolder())
                 .expirationDate(paymentEntity.expirationDate())
                 .cardCvv(paymentEntity.cardCvv())
-                .paymentType(PaymentTypeEnum.valueOf(paymentEntity.cardType().toUpperCase(Locale.ROOT)))
-                .isFavorite(favoriteMethod)
+                .paymentType(paymentEntity.paymentType())
+                .isFavorite(paymentEntity.isFavorite())
                 .build();
     }
 
-    public static PaymentEntity from(PixCreateRecord pixCreateRecord) {
+    public static PaymentEntity fromPixType(PaymentCreateOrUpdateRecord paymentEntity) {
         return PaymentEntity.builder()
-                .cardHolder(pixCreateRecord.payerName())
+                .cardHolder(paymentEntity.cardHolder())
                 .expirationDate("60")
                 .paymentType(PaymentTypeEnum.PIX)
+                .isFavorite(paymentEntity.isFavorite())
                 .build();
     }
 }

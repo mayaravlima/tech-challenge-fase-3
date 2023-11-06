@@ -1,8 +1,6 @@
 package com.postech.fase3parquimetro.receipt.service;
 
 import com.postech.fase3parquimetro.conductor.repository.ConductorRepository;
-import com.postech.fase3parquimetro.conductor.service.ConductorService;
-import com.postech.fase3parquimetro.parking.repository.ParkingRepository;
 import com.postech.fase3parquimetro.payments.repository.PaymentRepository;
 import com.postech.fase3parquimetro.receipt.ReceiptException;
 import com.postech.fase3parquimetro.receipt.model.ReceiptEntity;
@@ -15,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -34,7 +33,7 @@ public class ReceiptService {
     public ReceiptEntity save(ReceiptEntity receiptEntity) {
         final var vehicleEntity = vehicleRepository.findByParkingId(receiptEntity.getParking().getId());
         final var paymentEntity = paymentRepository.findByParkingId(receiptEntity.getParking().getId());
-        final var conductorEntity = conductorRepository.findByVehicleId(vehicleEntity.getId());
+        final var conductorEntity = conductorRepository.findByVehiclesId(vehicleEntity.getId());
 
         receiptEntity.setConductor(conductorEntity);
         receiptEntity.setVehicle(vehicleEntity);
@@ -43,7 +42,7 @@ public class ReceiptService {
         return receiptRepository.save(receiptEntity);
     }
 
-    public List<ReceiptEntity> findAllReceipts() {
-        return receiptRepository.findAll();
+    public List<ReceiptReadRecord> findAllReceipts() {
+        return receiptRepository.findAll().stream().map(ReceiptReadRecord::with).collect(Collectors.toList());
     }
 }

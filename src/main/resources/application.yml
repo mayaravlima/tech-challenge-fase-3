@@ -1,6 +1,6 @@
 spring:
   redis:
-    host: redis
+    host: 127.0.0.1
     port: 6379
     password: root
   cache:
@@ -8,4 +8,4 @@ spring:
 
   data:
     mongodb:
-      uri: 'mongodb://root:root@mongo:27017/parquimetro?authSource=admin'
+      uri: 'mongodb://root:root@localhost:27017/parquimetro?authSource=admin'

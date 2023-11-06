@@ -2,6 +2,7 @@ package com.postech.fase3parquimetro.utils;
 
 import com.postech.fase3parquimetro.conductor.exceptions.ConductorException;
 import com.postech.fase3parquimetro.parking.exceptions.ParkingException;
+import com.postech.fase3parquimetro.payments.exceptions.PaymentException;
 import com.postech.fase3parquimetro.receipt.ReceiptException;
 import com.postech.fase3parquimetro.vehicle.exceptions.VehicleException;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,13 @@ public class ControllerAdvice {
 
     @ExceptionHandler(ParkingException.class)
     public ResponseEntity<ApiErrorResponse> handleParkingException(final ParkingException e) {
+        final var apiResponse = new ApiErrorResponse(e.getMessage(), e.getStatusCode());
+
+        return new ResponseEntity(apiResponse, HttpStatus.valueOf(apiResponse.status()));
+    }
+
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<ApiErrorResponse> handlePaymentException(final PaymentException e) {
         final var apiResponse = new ApiErrorResponse(e.getMessage(), e.getStatusCode());
 
         return new ResponseEntity(apiResponse, HttpStatus.valueOf(apiResponse.status()));

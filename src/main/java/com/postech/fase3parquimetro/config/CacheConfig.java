@@ -16,7 +16,7 @@ public class CacheConfig {
         Config config = new Config();
 
         config.useSingleServer()
-                .setAddress("redis://redis:6379")
+                .setAddress("redis://localhost:6379")
                 .setPassword("root");
 
         return Redisson.create(config);

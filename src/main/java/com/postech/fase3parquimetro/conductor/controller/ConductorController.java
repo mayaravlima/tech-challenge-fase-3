@@ -1,9 +1,9 @@
 package com.postech.fase3parquimetro.conductor.controller;
 
+import com.postech.fase3parquimetro.conductor.model.ConductorCreateOrUpdateRecord;
 import com.postech.fase3parquimetro.conductor.model.ConductorEntity;
 import com.postech.fase3parquimetro.conductor.service.ConductorService;
-import com.postech.fase3parquimetro.conductor.model.ConductorCreateOrUpdateRecord;
-import com.postech.fase3parquimetro.payments.model.CardCreateOrUpdateRecord;
+import com.postech.fase3parquimetro.payments.model.PaymentCreateOrUpdateRecord;
 import com.postech.fase3parquimetro.vehicle.model.VehicleCreateRecord;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/conductor")
@@ -26,6 +27,12 @@ public class ConductorController {
         return new ResponseEntity<>(createdConductor, HttpStatus.CREATED);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ConductorEntity> updateConductor(@PathVariable String id, @RequestBody @Valid ConductorCreateOrUpdateRecord conductor) {
+        ConductorEntity updatedConductor = conductorService.updateConductor(id, conductor);
+        return new ResponseEntity<>(updatedConductor, HttpStatus.OK);
+    }
+
     @PutMapping("/{id}/vehicle")
     public ResponseEntity<ConductorEntity> addVehicleToConductor(@PathVariable String id, @RequestBody @Valid VehicleCreateRecord vehicle) {
         ConductorEntity updatedConductor = conductorService.addVehicleToConductor(id, vehicle);
@@ -33,7 +40,7 @@ public class ConductorController {
     }
 
     @PutMapping("/{id}/payment")
-    public ResponseEntity<ConductorEntity> addPaymentToConductor(@PathVariable String id, @RequestBody @Valid CardCreateOrUpdateRecord payment) {
+    public ResponseEntity<ConductorEntity> addPaymentToConductor(@PathVariable String id, @RequestBody @Valid PaymentCreateOrUpdateRecord payment) {
         ConductorEntity updatedConductor = conductorService.addCardToConductor(id, payment);
         return new ResponseEntity<>(updatedConductor, HttpStatus.OK);
     }
@@ -52,6 +59,24 @@ public class ConductorController {
     public ResponseEntity<List<ConductorEntity>> getAllConductors() {
         List<ConductorEntity> conductors = conductorService.getAllConductors();
         return new ResponseEntity<>(conductors, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, String>> deleteConductor(@PathVariable String id) {
+        conductorService.deleteConductor(id);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Conductor deleted successfully"));
+    }
+
+    @DeleteMapping("/vehicle/{id}")
+    public ResponseEntity<Map<String, String>> deleteVehicleFromConductor(@PathVariable String id) {
+        conductorService.removingVehicleFromConductor(id);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Vehicle deleted from conductor successfully"));
+    }
+
+    @DeleteMapping("/payment/{id}")
+    public ResponseEntity<Map<String, String>> deletePaymentFromConductor(@PathVariable String id) {
+        conductorService.removingPaymentFromConductor(id);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Payment deleted from conductor successfully"));
     }
 
 }

@@ -1,13 +1,7 @@
 package com.postech.fase3parquimetro.parking.model;
 
 import com.postech.fase3parquimetro.payments.model.PaymentEntity;
-import com.postech.fase3parquimetro.vehicle.model.VehicleEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -52,14 +46,14 @@ public class ParkingEntity {
 
         parkingEntity.setDurationInMinutes(parking.durationInMinutes());
 
-        if (parking.durationInMinutes() == 0 && parking.parkingType().equals(ParkingType.DURATION.toString())) {
+        if (parking.parkingType().equals(ParkingType.DURATION.toString())) {
             parkingEntity.setDurationInMinutes(60);
         }
 
         final var expirationTime = parkingEntity.getCreatedAt()
                 .plusMinutes(parkingEntity.getDurationInMinutes());
 
-        final var getAmountToPay = BigDecimal.valueOf(parking.durationInMinutes() * 0.10);
+        final var getAmountToPay = BigDecimal.valueOf(parkingEntity.getDurationInMinutes() * 0.10);
 
         parkingEntity.setExpiresIn(expirationTime);
         parkingEntity.setExtendActive(allowAutomaticExtension);

@@ -15,7 +15,6 @@ public class ParkingException extends NoStackTraceApiException {
         this.statusCode = statusCode;
     }
 
-
     public ParkingException(String message, int statusCode, Throwable cause) {
         super(message, cause);
     }

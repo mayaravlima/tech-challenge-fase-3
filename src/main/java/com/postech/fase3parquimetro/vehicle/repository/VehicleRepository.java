@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface VehicleRepository extends MongoRepository<VehicleEntity, String> {
 
-    public Optional<VehicleEntity> findByPlate(String plate);
+    Optional<VehicleEntity> findByPlate(String plate);
 
     @Query(value = "{ 'parking.$id': ?0 }")
     VehicleEntity findByParkingId(String parkingId);

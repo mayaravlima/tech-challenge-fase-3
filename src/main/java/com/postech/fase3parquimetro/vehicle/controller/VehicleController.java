@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/vehicle")
@@ -40,9 +41,16 @@ public class VehicleController {
         return new ResponseEntity<>(updatedVehicle, HttpStatus.OK);
     }
 
+    @PutMapping("/disableAutomaticExtension/{id}")
+    public ResponseEntity<Map<String, String>> disableAutomaticExtension(@PathVariable String id) {
+        vehicleService.disableAutomaticExtension(id);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Automatic extension disabled"));
+    }
+
     @GetMapping
     public ResponseEntity<List<VehicleEntity>> getAllVehicles() {
         List<VehicleEntity> vehicles = vehicleService.getAllVehicles();
         return new ResponseEntity<>(vehicles, HttpStatus.OK);
     }
+
 }
