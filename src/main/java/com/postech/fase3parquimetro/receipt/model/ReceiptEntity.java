@@ -4,12 +4,7 @@ import com.postech.fase3parquimetro.conductor.model.ConductorEntity;
 import com.postech.fase3parquimetro.parking.model.ParkingEntity;
 import com.postech.fase3parquimetro.payments.model.PaymentEntity;
 import com.postech.fase3parquimetro.vehicle.model.VehicleEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -27,7 +22,6 @@ public class ReceiptEntity {
 
     @Id
     private String id;
-
     @DBRef
     private ConductorEntity conductor;
     @DBRef

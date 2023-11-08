@@ -22,23 +22,23 @@ public class VehicleController {
     @PostMapping
     public ResponseEntity<VehicleEntity> createVehicle(@RequestBody VehicleCreateRecord vehicle) {
         VehicleEntity createdVehicle = vehicleService.createVehicle(vehicle);
-        return new ResponseEntity<>(createdVehicle, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdVehicle);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<VehicleEntity> getVehicle(@PathVariable String id) {
         VehicleEntity vehicle = vehicleService.getVehicleById(id);
         if (vehicle != null) {
-            return new ResponseEntity<>(vehicle, HttpStatus.OK);
+            return ResponseEntity.status( HttpStatus.OK).body(vehicle);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<VehicleEntity> addParkingTiming(@PathVariable String id, @RequestBody ParkingCreateOrUpdateRecord parkingTiming) {
         VehicleEntity updatedVehicle = vehicleService.addParkingTiming(id, parkingTiming);
-        return new ResponseEntity<>(updatedVehicle, HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedVehicle);
     }
 
     @PutMapping("/disableAutomaticExtension/{id}")
@@ -50,7 +50,7 @@ public class VehicleController {
     @GetMapping
     public ResponseEntity<List<VehicleEntity>> getAllVehicles() {
         List<VehicleEntity> vehicles = vehicleService.getAllVehicles();
-        return new ResponseEntity<>(vehicles, HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(vehicles);
     }
 
 }

@@ -1,7 +1,8 @@
 package com.postech.fase3parquimetro.conductor.controller;
 
-import com.postech.fase3parquimetro.conductor.model.ConductorCreateOrUpdateRecord;
+import com.postech.fase3parquimetro.conductor.model.ConductorCreateRecord;
 import com.postech.fase3parquimetro.conductor.model.ConductorEntity;
+import com.postech.fase3parquimetro.conductor.model.ConductorUpdateRecord;
 import com.postech.fase3parquimetro.conductor.service.ConductorService;
 import com.postech.fase3parquimetro.payments.model.PaymentCreateOrUpdateRecord;
 import com.postech.fase3parquimetro.vehicle.model.VehicleCreateRecord;
@@ -22,43 +23,39 @@ public class ConductorController {
     private final ConductorService conductorService;
 
     @PostMapping
-    public ResponseEntity<ConductorEntity> createConductor(@RequestBody @Valid ConductorCreateOrUpdateRecord conductor) {
+    public ResponseEntity<ConductorEntity> createConductor(@RequestBody @Valid ConductorCreateRecord conductor) {
         ConductorEntity createdConductor = conductorService.createConductor(conductor);
-        return new ResponseEntity<>(createdConductor, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdConductor);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ConductorEntity> updateConductor(@PathVariable String id, @RequestBody @Valid ConductorCreateOrUpdateRecord conductor) {
+    public ResponseEntity<ConductorEntity> updateConductor(@PathVariable String id, @RequestBody @Valid ConductorUpdateRecord conductor) {
         ConductorEntity updatedConductor = conductorService.updateConductor(id, conductor);
-        return new ResponseEntity<>(updatedConductor, HttpStatus.OK);
+        return ResponseEntity.ok(updatedConductor);
     }
 
     @PutMapping("/{id}/vehicle")
     public ResponseEntity<ConductorEntity> addVehicleToConductor(@PathVariable String id, @RequestBody @Valid VehicleCreateRecord vehicle) {
         ConductorEntity updatedConductor = conductorService.addVehicleToConductor(id, vehicle);
-        return new ResponseEntity<>(updatedConductor, HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedConductor);
     }
 
     @PutMapping("/{id}/payment")
     public ResponseEntity<ConductorEntity> addPaymentToConductor(@PathVariable String id, @RequestBody @Valid PaymentCreateOrUpdateRecord payment) {
         ConductorEntity updatedConductor = conductorService.addPaymentToConductor(id, payment);
-        return new ResponseEntity<>(updatedConductor, HttpStatus.OK);
+        return ResponseEntity.ok(updatedConductor);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ConductorEntity> getConductor(@PathVariable String id) {
         ConductorEntity conductor = conductorService.getConductorById(id);
-        if (conductor != null) {
-            return new ResponseEntity<>(conductor, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return ResponseEntity.ok(conductor);
     }
 
     @GetMapping
     public ResponseEntity<List<ConductorEntity>> getAllConductors() {
         List<ConductorEntity> conductors = conductorService.getAllConductors();
-        return new ResponseEntity<>(conductors, HttpStatus.OK);
+        return ResponseEntity.ok(conductors);
     }
 
     @DeleteMapping("/{id}")

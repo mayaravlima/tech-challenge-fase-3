@@ -1,8 +1,9 @@
 package com.postech.fase3parquimetro.conductor.service;
 
 import com.postech.fase3parquimetro.conductor.exceptions.ConductorException;
-import com.postech.fase3parquimetro.conductor.model.ConductorCreateOrUpdateRecord;
+import com.postech.fase3parquimetro.conductor.model.ConductorCreateRecord;
 import com.postech.fase3parquimetro.conductor.model.ConductorEntity;
+import com.postech.fase3parquimetro.conductor.model.ConductorUpdateRecord;
 import com.postech.fase3parquimetro.conductor.repository.ConductorRepository;
 import com.postech.fase3parquimetro.payments.model.PaymentCreateOrUpdateRecord;
 import com.postech.fase3parquimetro.payments.model.PaymentEntity;
@@ -13,6 +14,7 @@ import com.postech.fase3parquimetro.vehicle.model.VehicleEntity;
 import com.postech.fase3parquimetro.vehicle.service.VehicleService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,13 +31,12 @@ import java.util.stream.Collectors;
 public class ConductorService {
 
     private final ConductorRepository conductorRepository;
-
     private final VehicleService vehicleService;
     private final PaymentService paymentService;
 
-
     @Transactional
-    public ConductorEntity createConductor(ConductorCreateOrUpdateRecord conductor) {
+    @CacheEvict(value = {"conductor", "conductor:allConductors"}, allEntries = true)
+    public ConductorEntity createConductor(ConductorCreateRecord conductor) {
         ConductorEntity conductorEntity = ConductorEntity.from(conductor);
 
         verifyIfEmailAlreadyExists(conductor.email());
@@ -66,7 +67,6 @@ public class ConductorService {
                 .collect(Collectors.toList());
     }
 
-
     private List<PaymentEntity> createPayments(List<PaymentCreateOrUpdateRecord> paymentRecords) {
         return paymentRecords.stream()
                 .map(payment -> {
@@ -77,6 +77,7 @@ public class ConductorService {
                 .collect(Collectors.toList());
     }
 
+    @CacheEvict(value = {"conductor", "conductor:allConductors"}, allEntries = true)
     public ConductorEntity addVehicleToConductor(String conductorId, VehicleCreateRecord vehicle) {
         final var conductor = getConductorById(conductorId);
 
@@ -94,6 +95,7 @@ public class ConductorService {
         return conductorRepository.save(conductor);
     }
 
+    @CacheEvict(value = {"conductor", "conductor:allConductors"}, allEntries = true)
     public ConductorEntity addPaymentToConductor(String conductorId, PaymentCreateOrUpdateRecord payment) {
         final var conductor = getConductorById(conductorId);
 
@@ -123,16 +125,18 @@ public class ConductorService {
         return conductorRepository.save(conductor);
     }
 
+    @Cacheable(key = "#id", value = "conductor", unless = "#result == null")
     public ConductorEntity getConductorById(String id) {
         return conductorRepository.findById(id).orElseThrow(() -> new ConductorException("Conductor not found", HttpStatus.NOT_FOUND.value()));
     }
 
-    @Cacheable(cacheNames = "conductor:allConductors", unless = "#result.size() == 0")
+    @Cacheable(value = "conductor:allConductors", unless = "#result.size() == 0")
     public List<ConductorEntity> getAllConductors() {
         return conductorRepository.findAll();
     }
 
     @Transactional
+    @CacheEvict(value = {"conductor", "conductor:allConductors", "conductor:byEmail", "conductor:byPhone"}, allEntries = true)
     public void deleteConductor(String id) {
         final var conductor = getConductorById(id);
 
@@ -158,7 +162,8 @@ public class ConductorService {
         });
     }
 
-    public ConductorEntity updateConductor(String id, ConductorCreateOrUpdateRecord conductor) {
+    @CacheEvict(value = {"conductor", "conductor:allConductors", "conductor:byEmail", "conductor:byPhone"}, allEntries = true)
+    public ConductorEntity updateConductor(String id, ConductorUpdateRecord conductor) {
         final var conductorEntity = getConductorById(id);
 
         if (Objects.nonNull(conductor.name())) {
@@ -179,11 +184,11 @@ public class ConductorService {
             conductorEntity.setPhone(conductor.phone());
         }
 
-
         return conductorRepository.save(conductorEntity);
     }
 
     @Transactional
+    @CacheEvict(value = {"conductor", "conductor:allConductors"}, allEntries = true)
     public void removingVehicleFromConductor(String vehicleId) {
         final var vehicle = vehicleService.getVehicleById(vehicleId);
 
@@ -200,6 +205,7 @@ public class ConductorService {
         vehicleService.deleteVehicle(vehicleId);
     }
 
+    @CacheEvict(value = {"conductor", "conductor:allConductors"}, allEntries = true)
     public void removingPaymentFromConductor(String id) {
         final var payment = paymentService.getPaymentById(id);
 

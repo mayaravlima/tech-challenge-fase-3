@@ -12,6 +12,6 @@ public interface VehicleRepository extends MongoRepository<VehicleEntity, String
 
     Optional<VehicleEntity> findByPlate(String plate);
 
-    @Query(value = "{ 'parking.$id': ?0 }")
+    @Query(value = "{ 'parking.$id': ObjectId(?0) }")
     VehicleEntity findByParkingId(String parkingId);
 }

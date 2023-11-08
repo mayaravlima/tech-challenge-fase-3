@@ -9,4 +9,5 @@ public record VehicleCreateRecord(
         String brand,
         @NotBlank(message = "Model can't be empty or null")
         String model
-){}
+) {
+}

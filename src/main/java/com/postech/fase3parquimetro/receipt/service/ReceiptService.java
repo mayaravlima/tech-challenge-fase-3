@@ -9,6 +9,8 @@ import com.postech.fase3parquimetro.receipt.repository.ReceiptRepository;
 import com.postech.fase3parquimetro.vehicle.repository.VehicleRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -25,15 +27,19 @@ public class ReceiptService {
     private final VehicleRepository vehicleRepository;
     private final PaymentRepository paymentRepository;
 
+    @Cacheable(key = "#id", value = "receipt", unless = "#result == null")
     public ReceiptReadRecord getById(String id) {
         return receiptRepository.findById(id).map(ReceiptReadRecord::with).orElseThrow(() ->
                 new ReceiptException("Receipt not found for given id", HttpStatus.NOT_FOUND.value()));
     }
 
+    @CacheEvict(value = {"receipt"}, allEntries = true)
     public ReceiptEntity save(ReceiptEntity receiptEntity) {
         final var vehicleEntity = vehicleRepository.findByParkingId(receiptEntity.getParking().getId());
-        final var paymentEntity = paymentRepository.findByParkingId(receiptEntity.getParking().getId());
+        final var paymentEntity = paymentRepository.findById(receiptEntity.getParking().getPayedWith().getId()).get();
         final var conductorEntity = conductorRepository.findByVehiclesId(vehicleEntity.getId());
+
+        log.info("Payment {}", paymentEntity.getId());
 
         receiptEntity.setConductor(conductorEntity);
         receiptEntity.setVehicle(vehicleEntity);
@@ -42,6 +48,7 @@ public class ReceiptService {
         return receiptRepository.save(receiptEntity);
     }
 
+    @Cacheable(value = "receipt:allValues", unless = "#result.size() == 0")
     public List<ReceiptReadRecord> findAllReceipts() {
         return receiptRepository.findAll().stream().map(ReceiptReadRecord::with).collect(Collectors.toList());
     }

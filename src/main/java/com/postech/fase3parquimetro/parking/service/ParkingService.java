@@ -10,11 +10,11 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,7 +28,7 @@ public class ParkingService {
     private final ParkingRepository parkingRepository;
     private final ReceiptService receiptService;
 
-    @Cacheable(value = "parkings", key = "#parkingRequest")
+
     public ParkingEntity save(ParkingCreateOrUpdateRecord parkingRequest) {
         final var parkingEntity = ParkingEntity.from(parkingRequest);
 
@@ -40,6 +40,7 @@ public class ParkingService {
     }
 
     @Scheduled(fixedRate = FIVE_MINUTES)
+    @CacheEvict(value = {"conductor", "conductor:allConductors", "vehicle", "vehicle:allVehicles"}, allEntries = true)
     public void checkExpiration() {
         log.info("Checking expiration of parkings");
         final var parkingList =
@@ -51,22 +52,20 @@ public class ParkingService {
         }
 
         parkingList.forEach(this::controlParkingTime);
+
+        parkingRepository.saveAll(parkingList);
     }
 
-    private void controlParkingTime(ParkingEntity parking) {
+    public void controlParkingTime(ParkingEntity parking) {
         final var isAutomaticExtension = parking.isExtendActive();
 
         if (parking.getStatus().equals(StatusEnum.NEAR_EXPIRATION) && isAutomaticExtension) {
-            log.info("{} has been extended for {}", parking.getId(), parking.getDurationInMinutes());
             parking.extendPeriod();
-            parking.setStatus(StatusEnum.ACTIVE);
+            log.info("{} has been extended for {}", parking.getId(), parking.getDurationInMinutes());
             return;
         }
 
-        if (isNearExpiration(parking)) {
-            log.info("{} will expire in 5 minutes", parking.getId());
-            parking.setStatus(StatusEnum.NEAR_EXPIRATION);
-        } else if (parkingHasExpired(parking)) {
+        if (parkingHasExpired(parking)) {
             parking.setStatus(StatusEnum.EXPIRED);
 
             final var receiptCreation = ReceiptEntity.builder()
@@ -75,24 +74,23 @@ public class ParkingService {
 
             final var receipt = receiptService.save(receiptCreation);
             log.info("Receipt created: {}", receipt.getId());
+        } else if (isNearExpiration(parking)) {
+            log.info("{} will expire in 5 minutes", parking.getId());
+            parking.setStatus(StatusEnum.NEAR_EXPIRATION);
         }
     }
 
     private boolean isNearExpiration(ParkingEntity parking) {
-        final var duration = parking.getDurationInMinutes();
-        final var durationEndingTimeInMilis = parking.getCreatedAt().plusMinutes(duration).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        final var expiresInFiveMinutesInMilis = LocalDateTime.now().minusMinutes(5).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        final var currentDurationInMilis = parking.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        final var expiresInFiveMinutes = parking.getExpiresIn().minusMinutes(5);
+        final var localTime = LocalDateTime.now();
 
-        return durationEndingTimeInMilis - currentDurationInMilis <= expiresInFiveMinutesInMilis;
+        return localTime.isAfter(expiresInFiveMinutes) || localTime.isEqual(expiresInFiveMinutes);
     }
 
-    @CacheEvict(value = "parkings", allEntries = false, key = "#parking.id")
     private boolean parkingHasExpired(ParkingEntity parking) {
-        final var duration = parking.getDurationInMinutes();
-        final var durationEndingTime = parking.getCreatedAt().plusMinutes(duration);
+        final var currentTime = LocalDateTime.now();
 
-        return durationEndingTime.isAfter(LocalDateTime.now()) || durationEndingTime.isEqual(LocalDateTime.now());
+        return currentTime.isAfter(parking.getExpiresIn()) || currentTime.isEqual(parking.getExpiresIn());
     }
 
     public List<ParkingEntity> getAllParkings() {

@@ -1,11 +1,13 @@
 package com.postech.fase3parquimetro.vehicle.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.postech.fase3parquimetro.parking.model.ParkingEntity;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
@@ -15,13 +17,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Document(collection = "vehicle")
 @ToString
-public class VehicleEntity {
+public class VehicleEntity implements Serializable {
 
     @Id
     private String id;
     private String plate;
     private String brand;
     private String model;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     @DBRef

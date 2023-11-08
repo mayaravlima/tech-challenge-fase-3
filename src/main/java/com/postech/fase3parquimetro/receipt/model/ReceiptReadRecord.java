@@ -1,14 +1,8 @@
 package com.postech.fase3parquimetro.receipt.model;
 
-import com.postech.fase3parquimetro.conductor.model.ConductorEntity;
-import com.postech.fase3parquimetro.parking.model.ParkingEntity;
-import com.postech.fase3parquimetro.payments.model.PaymentEntity;
-import com.postech.fase3parquimetro.vehicle.model.VehicleEntity;
-
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 public record ReceiptReadRecord(
         String conductorName,
@@ -21,6 +15,7 @@ public record ReceiptReadRecord(
 ) {
 
     public static ReceiptReadRecord with(ReceiptEntity receiptEntity) {
+
         final var conductor = receiptEntity.getConductor();
         final var vehicle = receiptEntity.getVehicle();
         final var payment = receiptEntity.getPayment();

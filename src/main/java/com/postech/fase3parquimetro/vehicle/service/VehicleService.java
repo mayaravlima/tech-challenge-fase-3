@@ -1,6 +1,8 @@
 package com.postech.fase3parquimetro.vehicle.service;
 
 import com.postech.fase3parquimetro.conductor.exceptions.ConductorException;
+import com.postech.fase3parquimetro.conductor.model.ConductorEntity;
+import com.postech.fase3parquimetro.conductor.service.ConductorService;
 import com.postech.fase3parquimetro.parking.exceptions.ParkingException;
 import com.postech.fase3parquimetro.parking.model.ParkingCreateOrUpdateRecord;
 import com.postech.fase3parquimetro.parking.model.ParkingType;
@@ -15,7 +17,9 @@ import com.postech.fase3parquimetro.vehicle.model.VehicleCreateRecord;
 import com.postech.fase3parquimetro.vehicle.model.VehicleEntity;
 import com.postech.fase3parquimetro.vehicle.repository.VehicleRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,11 +43,12 @@ public class VehicleService {
         return vehicleRepository.save(vehicleEntity);
     }
 
-
+    @Cacheable(key = "#id", value = "vehicle", unless = "#result == null")
     public VehicleEntity getVehicleById(String id) {
         return vehicleRepository.findById(id).orElse(null);
     }
 
+    @CacheEvict(value = {"conductor", "conductor:allConductors", "vehicle", "vehicle:allVehicles"}, allEntries = true)
     public VehicleEntity addParkingTiming(String id, ParkingCreateOrUpdateRecord parkingTiming) {
         final var vehicleEntity = vehicleRepository.findById(id)
                 .orElseThrow(() -> new VehicleException("Vehicle not found", HttpStatus.NOT_FOUND.value()));
@@ -76,12 +81,13 @@ public class VehicleService {
                 && ParkingType.valueOf(parkingRequest.parkingType().toUpperCase(Locale.ROOT)) == ParkingType.DURATION;
     }
 
-    @Cacheable(cacheNames = "vehicle", unless = "#result.size() == 0")
+    @Cacheable(cacheNames = "vehicle:allVehicles", unless = "#result.size() == 0")
     public List<VehicleEntity> getAllVehicles() {
         return vehicleRepository.findAll();
     }
 
     @Transactional
+    @CacheEvict(value = {"vehicle", "vehicle:allVehicles"}, allEntries = true)
     public void deleteVehicle(String id) {
         final var vehicle = getVehicleById(id);
         if (vehicle == null) {
@@ -106,6 +112,7 @@ public class VehicleService {
         }
     }
 
+    @CacheEvict(value = {"conductor", "conductor:allConductors", "vehicle", "vehicle:allVehicles"}, allEntries = true)
     public void disableAutomaticExtension(String id) {
         final var vehicleEntity = vehicleRepository.findById(id)
                 .orElseThrow(() -> new VehicleException("Vehicle not found", HttpStatus.NOT_FOUND.value()));
