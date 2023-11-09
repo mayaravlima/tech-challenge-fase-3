@@ -24,11 +24,15 @@ Siga as etapas abaixo para configurar e executar o projeto em seu ambiente local
    ```sh
    cd tech-challenge-fase-3
    ```
-3. Rode o comando para utilizar o Docker Compose e subir o banco de dados:
+3. Crie um diretório na raiz do projeto com o nome **'db'**
+
+4. Dentro do diretório 'db' crie um diretório com o nome **'mongo'**
+   
+5. Rode o comando para utilizar o Docker Compose e subir o banco de dados:
    ```sh
     docker-compose up --force-recreate -d --build
     ```
-7. Acesse os endpoints
+6. Acesse os endpoints
    ```sh
    localhost:8080/
    ```
