@@ -42,8 +42,6 @@ public class PaymentEntity implements Serializable {
 
     public static PaymentEntity fromPixType(PaymentCreateOrUpdateRecord paymentEntity) {
         return PaymentEntity.builder()
-                .cardHolder(paymentEntity.cardHolder())
-                .expirationDate("60")
                 .paymentType(PaymentTypeEnum.PIX)
                 .isFavorite(paymentEntity.isFavorite())
                 .build();

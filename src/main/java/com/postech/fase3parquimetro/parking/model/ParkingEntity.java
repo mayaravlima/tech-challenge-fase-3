@@ -56,6 +56,10 @@ public class ParkingEntity implements Serializable {
 
         }
 
+        if (parking.parkingType().equals(ParkingType.FIXED.toString()) && parking.durationInMinutes() == 0) {
+            parkingEntity.setDurationInMinutes(30);
+        }
+
         final var expirationTime = parkingEntity.getCreatedAt()
                 .plusMinutes(parkingEntity.getDurationInMinutes());
 

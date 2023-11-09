@@ -19,12 +19,6 @@ public class VehicleController {
 
     private final VehicleService vehicleService;
 
-    @PostMapping
-    public ResponseEntity<VehicleEntity> createVehicle(@RequestBody VehicleCreateRecord vehicle) {
-        VehicleEntity createdVehicle = vehicleService.createVehicle(vehicle);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdVehicle);
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<VehicleEntity> getVehicle(@PathVariable String id) {
         VehicleEntity vehicle = vehicleService.getVehicleById(id);
@@ -35,7 +29,7 @@ public class VehicleController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PostMapping("/{id}")
     public ResponseEntity<VehicleEntity> addParkingTiming(@PathVariable String id, @RequestBody ParkingCreateOrUpdateRecord parkingTiming) {
         VehicleEntity updatedVehicle = vehicleService.addParkingTiming(id, parkingTiming);
         return ResponseEntity.status(HttpStatus.OK).body(updatedVehicle);

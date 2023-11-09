@@ -1,8 +1,6 @@
 package com.postech.fase3parquimetro.vehicle.service;
 
 import com.postech.fase3parquimetro.conductor.exceptions.ConductorException;
-import com.postech.fase3parquimetro.conductor.model.ConductorEntity;
-import com.postech.fase3parquimetro.conductor.service.ConductorService;
 import com.postech.fase3parquimetro.parking.exceptions.ParkingException;
 import com.postech.fase3parquimetro.parking.model.ParkingCreateOrUpdateRecord;
 import com.postech.fase3parquimetro.parking.model.ParkingType;
@@ -19,7 +17,6 @@ import com.postech.fase3parquimetro.vehicle.repository.VehicleRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
